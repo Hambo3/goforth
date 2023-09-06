@@ -178,10 +178,10 @@ class MapManger{
         );
     }
 
-    Content(pos){
-        var c = Math.floor(pos.x / this.tileSize);
-        var r = Math.floor(pos.y / this.tileSize);
-        return this.mapData[r][c];
-    } 
+    // Content(pos){
+    //     var c = Math.floor(pos.x / this.tileSize);
+    //     var r = Math.floor(pos.y / this.tileSize);
+    //     return this.mapData[r][c];
+    // } 
 
 }

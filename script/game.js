@@ -7,7 +7,7 @@ class Blocky{//TBA
         this.lvlScore = 0;
         this.plrStart = 80;
         this.gameTimer = new Timer(0);
-        this.gameMode = C.G.TITLE;
+        this.gameMode = 0;  // TITLE
         this.level = 0;
         this.offset;
         this.gameObjects = new ObjectPool();
@@ -98,10 +98,10 @@ class Blocky{//TBA
         this.chaser = new Chaser(0, MAP.mapSize.x - 200, lvlInfo.cs, lvlInfo.cr);
         this.gameObjects.Add(this.chaser);
 
-        this.gameMode = this.help.in?C.G.INTRO:C.G.GAME;
+        this.gameMode = this.help.in ? 8 : 1;  // INTRO // GAME
 
         if(!lvl){
-            this.gameMode = C.G.TITLE;
+            this.gameMode = 0;  // TITLE
             this.score = 0;    
             this.plr.enabled = 0;
         }
@@ -340,7 +340,7 @@ class Blocky{//TBA
     NextLevel(){
         this.score += this.lvlScore;        
         if(this.level == 8){
-            this.gameMode = C.G.KING;
+            this.gameMode = 7;  // KING
             this.gameTimer = new Timer(8);
             this.plr.enabled = 0;
         }
@@ -351,15 +351,15 @@ class Blocky{//TBA
     }
 
     LevelEnd(){
-        this.gameMode = C.G.LEVELEND;
+        this.gameMode = 4;  // LEVELEND
         this.gameTimer = new Timer(8);
     }
     GameOver(){
-            this.gameMode = C.G.GAMEOVER;
+            this.gameMode = 6;  // GAMEOVER
             this.gameTimer = new Timer(8);
     }
     Quit(){
-        this.gameMode = C.G.TITLE;
+        this.gameMode = 0;  // TITLE
         this.plr.enabled = 0;
         this.Start(0);
     }
@@ -384,10 +384,10 @@ class Blocky{//TBA
             this.plr.C.x > this.chaser.pos.x ? this.plr.C.x : this.chaser.pos.x, 
             this.plr.C.y));
 
-        if(this.gameMode == C.G.TITLE){
+        if(this.gameMode == 0){ // TITLE
             if(Input.Fire1()){
                 this.iT = {p:new Vector2(240, 400), src:'ip', sz:1, r:0,lv:1};
-                this.Start(8);
+                this.Start(1);
             }
             if(this.iT.lv == 0){
                 if(this.iT.sz < 16){
@@ -408,16 +408,16 @@ class Blocky{//TBA
             }
 
         }
-        else if(this.gameMode == C.G.INTRO){
+        else if(this.gameMode == 8){    // INTRO
             if(Input.Fire1()){
                 this.help.in = 0;
-                this.gameMode = C.G.GAME;
+                this.gameMode = 1;  // GAME
             }  
         }
-        else if(this.gameMode == C.G.GAME 
-            || this.gameMode == C.G.GAMEOVER
-            || this.gameMode == C.G.LEVELEND
-            || this.gameMode == C.G.KING){
+        else if(this.gameMode == 1              // GAME 
+            || this.gameMode == 6               // GAMEOVER
+            || this.gameMode == 4               // LEVELEND
+            || this.gameMode == 7){             // KING
 
             this.help.go = !this.boss && (this.chaser.pos.x-200)>this.plr.C.x;
 
@@ -455,7 +455,7 @@ class Blocky{//TBA
                 objects[i].Update(dt, ci);
             }
 
-            if(this.gameMode == C.G.LEVELEND || this.gameMode == C.G.KING){
+            if(this.gameMode == 4 || this.gameMode == 7){        // LEVELEND  // KING
                 //fireworks
                 if(this.plr.enabled){
                     if(Util.OneIn(32)){
@@ -466,7 +466,7 @@ class Blocky{//TBA
                     }
                 }
 
-                if(this.gameMode == C.G.KING){
+                if(this.gameMode == 7){     // KING
                     if(!this.gameTimer.enabled){
                         this.Quit();
                     } 
@@ -501,10 +501,10 @@ class Blocky{//TBA
             var ps = ((this.plr.C.x - this.plrStart)/10)|0;
             this.lvlScore = ps > this.lvlScore ? ps : this.lvlScore;          
 
-            if(this.gameMode == C.G.GAME && !this.plr.enabled){
+            if(this.gameMode == 1 && !this.plr.enabled){   // GAME
                 this.GameOver();
             }
-            if(this.gameMode == C.G.GAMEOVER || this.gameMode == C.G.KING){
+            if(this.gameMode == 6 || this.gameMode == 7){    // GAMEOVER    // KING
                 if(!this.gameTimer.enabled){
                     this.Quit();
                 }            
@@ -529,7 +529,7 @@ class Blocky{//TBA
 
         MAP.PostRender();
 
-        if(this.gameMode != C.G.TITLE){
+        if(this.gameMode != 0){// TITLE
             SFX.Text("DISTANCE: " + Util.NumericText(this.score+this.lvlScore,5),16, 4, 3, 0, "#fff");
             SFX.Text("TONY" ,234, 4, 3, 0, this.super ? "#f00" : "#fff"); 
             SFX.Box(298,4,
@@ -544,7 +544,7 @@ class Blocky{//TBA
         var g = "#82b";
         var d = "#719";
         var w = "#DDD";
-        if(this.gameMode == C.G.GAME)
+        if(this.gameMode == 1)  // GAME
         {           
             if(this.gameTimer.enabled){
                 SFX.Text(b[0],200,140,6,0,g);
@@ -584,7 +584,7 @@ class Blocky{//TBA
                 }
             }
         }
-        else if(this.gameMode == C.G.INTRO){
+        else if(this.gameMode == 8){        // INTRO
             SFX.Box(0,0, 800,608);
             SFX.Text("IN 1276AD THE GOOD KNIGHT SIR TONY",100,124,4,0,w); 
             SFX.Text("OF TONYSHIRE SOUGHT OUT TO CONQUER",100,148,4,0,w);
@@ -594,7 +594,7 @@ class Blocky{//TBA
                 SFX.Text(D[0]+" CONTINUE",360,280,4,0,d);  
             }
         }
-        else if(this.gameMode == C.G.TITLE){
+        else if(this.gameMode == 0){    // TITLE
             SFX.Sprite(this.iT.p.x, this.iT.p.y, 
                 SPRITES.Get(this.iT.src, 0), this.iT.sz, this.iT.r);  
 
@@ -604,7 +604,7 @@ class Blocky{//TBA
             if(this.iT.lv || this.iT.sz > 16){ 
                 SFX.Text(D[0]+" TO START",360,280,4,0,d);  
             }
-        }else if(this.gameMode == C.G.LEVELEND){            
+        }else if(this.gameMode == 4){            // LEVELEND
             SFX.Text(""+ b[2] + " " + b[1] + " IS " + (this.rnd==0?"SLAIN":"DEFEATED") ,60,100,5,1,g); 
             SFX.Text("YOU ARE NOW " + b[2],180,140,5,1,g); 
             SFX.Text("YOU HAVE TRAVELLED " + (this.score+this.lvlScore) +" YDS" ,140,190,4,1,g); 
@@ -612,7 +612,7 @@ class Blocky{//TBA
                 SFX.Text("ONWARD " + b[2]+" TONY" ,190,230,5,1,g); 
             }
         
-        }else if(this.gameMode == C.G.GAMEOVER){
+        }else if(this.gameMode == 6){   // GAMEOVER
             SFX.Text("THY GAME IS OVER",140,100,6,1,g);   
 
             SFX.Text("YOU HAVE TRAVELLED " + (this.score+this.lvlScore) +" YDS" ,130,200,4,1,d); 
@@ -622,7 +622,7 @@ class Blocky{//TBA
                 SFX.Text(""+BOSSES[this.level-1][2]+" OF THE REALM",170,145,5,1,g); 
             }
         }
-        else if (this.gameMode == C.G.KING){
+        else if (this.gameMode == 7){   // KING
             SFX.Text("BEHOLD KING TONY",140,100,6,1,g);  
             SFX.Sprite(400, 300, 
                 SPRITES.Get(this.iT.src, 0), 3, 0);

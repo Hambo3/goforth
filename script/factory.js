@@ -10,19 +10,18 @@
 // BOSS:11,
 // PICKUPSHOT:12,
 // PICKUPHAT:13
+
+// TITLE:0,
+// GAME:1,
+// INPLAY:2,
+// LEVELENDING:3,
+// LEVELEND:4,
+// GAMEWON:5,
+// GAMEOVER:6,
+// KING:7,
+// INTRO:8
+
 var C = { 
-    G:
-    {
-        TITLE:0,
-        GAME:1,
-        INPLAY:2,
-        LEVELENDING:3,
-        LEVELEND:4,
-        GAMEWON:5,
-        GAMEOVER:6,
-        KING:7,
-        INTRO:8
-    },
     SND:{
         step:0,
         crash:1,
