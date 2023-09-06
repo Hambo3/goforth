@@ -1,4 +1,4 @@
-var EasingFunctions = {
+var EF = {
     easeInQuad: function (t) { return t * t },
     easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t }
 }

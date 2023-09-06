@@ -29,23 +29,11 @@ var SPRITES = [];
 var PHYSICS = new World();
 var AUDIO;
 
-var IsTouchDevice = window.ontouchstart !== undefined;
-		
-var map = {
-	set:"tile",
-	size:{
-		tile:{width:32, height:32},
-		screen:{width:25, height:19},
-		world:{width:80, height:32}//220??
-	}
-};
-
-
 function Start(canvasBody)
 {	
 	// Create the canvas
-	var wd = (map.size.screen.width * map.size.tile.width);
-	var ht = (map.size.screen.height * map.size.tile.height);
+	var wd = (25 * 32);
+	var ht = (19 * 32);
 	var mCtx = Util.Context(wd, ht);
 	if(mCtx.canvas.getContext)
 	{
@@ -59,9 +47,7 @@ function Start(canvasBody)
 
 		//offscreen renderer
 		GFX = new Render(MAP.osCanvas.ctx);	
-		SFX = new Render(MAP.screenCtx, wd, ht);	
-
-		//Input.Init(mCtx.canvas, IsTouchDevice, SFX);
+		SFX = new Render(MAP.screenCtx, wd, ht);
 
 		SPRITES = new SpritePreProcessor(DEFS.spriteDef);	
 
@@ -87,9 +73,9 @@ function Gen1(w, h){
 	var g = Util.Context(w, h);
 	var gx = new Render(g.ctx);
 
-	var l = SPRITES.Get('log16l', 0);
-	var m = SPRITES.Get('log16', 0);
-	var r = SPRITES.Get('log16r', 0);
+	var l = SPRITES.Get('t6', 0);
+	var m = SPRITES.Get('t7', 0);
+	var r = SPRITES.Get('t8', 0);
 	var sw = m.dim.w;
 	var i=0;
 	gx.Sprite(sw/2+(i*sw), sw/2, l, 1, 0);
@@ -98,8 +84,8 @@ function Gen1(w, h){
 	}
 	gx.Sprite(sw/2+(i*sw), sw/2, r, 1, 0);
 
-	l = SPRITES.Get('player', 0);
-	m = SPRITES.Get('legs', 0);
+	l = SPRITES.Get('p', 0);
+	m = SPRITES.Get('l', 0);
 
 	gx.Sprite(16, 40, l, 1, 0);
 	gx.Sprite(16, 50, m, 1, 0);
@@ -200,6 +186,6 @@ onblur = function(e)  {
 
 
 window.onload = function() {
-	Start("canvasBody");
+	Start("cb");
 }
 

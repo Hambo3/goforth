@@ -37,14 +37,17 @@ class Render{
         return Math.round(p);
     }
 
+    Rot(x, y, a){
+        this.ctx.save();
+        this.ctx.translate(this.PT(x), this.PT(y));
+        this.ctx.rotate(a); 
+    }
     Plane(x, y, pts, col, sz, angle, bcol)
     {
         if(bcol){
             this.ctx.strokeStyle = bcol;
         }
-        this.ctx.save();
-        this.ctx.translate(this.PT(x), this.PT(y));
-        this.ctx.rotate(angle);  
+        this.Rot(x, y, angle);
 
         this.ctx.fillStyle = col;
         this.ctx.beginPath();
@@ -80,9 +83,8 @@ class Render{
     Sprite(x, y, sprite, scale, angle=0, op){
         var dim = sprite.dim;   
 
-        this.ctx.save();
-        this.ctx.translate(this.PT(x), this.PT(y));
-        this.ctx.rotate(angle);  
+        this.Rot(x, y, angle);
+
 
         if(sprite.pos.m){
             this.ctx.scale(-1,1);
@@ -101,14 +103,6 @@ class Render{
         this.ctx.fillStyle = c || '#000000';
         this.ctx.fillRect(x, y, w, h);
     }
-
-    // Circle(x,y,r,c){
-    //     this.ctx.beginPath();
-    //     this.ctx.lineWidth = 1;
-    //     this.ctx.strokeStyle = c;
-    //     this.ctx.arc(x, y, r, 0, 2 * Math.PI, false);
-    //     this.ctx.stroke();
-    // }
     
     Text(str, xs, ys, size, sc, col) {
 

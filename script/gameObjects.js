@@ -146,7 +146,7 @@ class GameObject extends RigidShape{
         this.damage = 0;
         this.breakPoint = 0;
         this.collidedWith = [];
-
+        this.invincible = 0;
         this.particle = null;
     }
 
@@ -155,7 +155,7 @@ class GameObject extends RigidShape{
         if(!this.isStatic && (this.C.y > MAP.mapSize.y || GAME.IsLeftBehind(this.C.x))){
             this.enabled = 0;
         }
-        if(this.damage > 0 && ci.length != 0){ 
+        if(!this.invincible && this.damage > 0 && ci.length != 0){ 
             for (var i = 0; i < ci.length; i++) {
                 var perp = ci[i].P1 != this ? ci[i].P1 : ci[i].P2;
                 var cx = ci[i].C;
@@ -181,7 +181,7 @@ class GameObject extends RigidShape{
     }
 
     Legs(x, y){
-        var rk = SPRITES.Get('legs', this.altF);
+        var rk = SPRITES.Get('l', this.altF);
         var pt = this.C.CloneAdd({x:0,y:10});
         pt.rotate(this.C, this.G);
         GFX.Sprite(pt.x-x, pt.y-y, rk, this.size, this.G);
@@ -328,7 +328,8 @@ class Player extends GameObject{
         this.body = b.src;
         this.dmgIgnore = [9, 12, 13];
 
-        this.damage = 0;          
+        this.damage = 0;  
+        this.hatDmg =         
         this.ignore = [8];
         this.input = input;
         this.anim = new Anim(16, 2);     
@@ -336,8 +337,8 @@ class Player extends GameObject{
         this.hat = 0; 
         this.hats = [
             0,
-            {y:-6, s:SPRITES.Get('hat', 0)},
-            {y:-16, s:SPRITES.Get('crown', 0)}
+            {y:-6, s:SPRITES.Get('h', 0)},
+            {y:-16, s:SPRITES.Get('k', 0)}
         ];
         this.altF = 0;
     }
@@ -358,7 +359,7 @@ class Player extends GameObject{
                     this.collidedWith.push(perp);
                     perp.enabled = 0;
                     this.hat = perp.type == 13 ? 2 :1;
-                    this.damage = 500;
+                    this.damage = Util.Clamp(this.damage+100, 300,500);
                     AUDIO.Play(C.SND.tada);
                 }
                 
@@ -396,7 +397,7 @@ class Player extends GameObject{
              this.G = 0;    
         }
 
-        if(this.hat && this.damage < 450){            
+        if(this.hat && this.damage <= 250){            
             GAME.AddObject(26, 8, this.C.Clone().AddXY(0, this.hats[this.hat].y), 
                             new Vector2(Util.RndI(-16,16),-32));
             this.hat = 0;
@@ -430,13 +431,19 @@ class BadGuy extends GameObject{
         this.spriteId = b.id;
         this.body = b.src;
         this.damage = 0;
-        this.max = 
+        this.max = 0;
         this.anim = new Anim(16, 2);
         this.throw = 0;
         this.skill = 1;
         this.rates = [100,80,60];
 
-        this.hat = this.extra ? SPRITES.Get('crown', 0) : null;
+        this.hat = this.extra ? 1 : Util.OneOf([2,3]);
+        this.hats = [
+            {},
+            {y:-50,s:SPRITES.Get('k', 0)},
+            {y:-6, s:SPRITES.Get('h2', 0),i:32},
+            {y:-16, s:SPRITES.Get('h3', 0),i:33}
+        ];
         this.dead = 0;
         this.jmpDelay = 80;
         this.hatP = null;
@@ -457,20 +464,27 @@ class BadGuy extends GameObject{
         if(!this.dead){
 
             if(!this.enabled){
+
                 this.dead = 1;
                 this.enabled = 1;
-                this.V.y = -24;
-                this.v = 0.9;
                 this.throw = 0;
-                this.face = 1;
+
                 if(this.hat)
                 {
-                    AUDIO.Play(C.SND.boss);
-                    this.hat = null;
-                    this.hatP =new PickUp(this.C.Clone().AddXY(0, -48), 29, 13);
-                    this.hatP.V = new Vector2(this.V.x, -Util.Rnd(24));
-                    GAME.gameObjects.Add(this.hatP);
+                    var h = this.hats[this.hat];
+                    if(this.hat ==1){
+                        AUDIO.Play(C.SND.boss); 
+                        this.hatP =new PickUp(this.C.Clone().AddXY(0, -48), 29, 13);
+                        this.hatP.V = new Vector2(this.V.x, -Util.Rnd(24));
+                        GAME.gameObjects.Add(this.hatP);                                               
+                    } 
+                    else{
+                        GAME.AddObject(h.i, 8, this.C.Clone().AddXY(0, h.y), 
+                            new Vector2(Util.RndI(-16,16),-32));
+                    }
+                    this.hat = 0;
                 }
+                this.face = 1;
             }
 
             if(ci.length > 0){
@@ -535,27 +549,31 @@ class BadGuy extends GameObject{
     {
         super.Render(x,y);
 
-        this.Legs(x,y);
+        if(this.type != 11)
+        {
+            this.Legs(x,y);
+        }
 
         if(this.hat){
-            var pt = this.C.CloneAdd({x:0,y:-50});
+            var h = this.hats[this.hat];
+            var pt = this.C.CloneAdd({x:0,y:h.y});
             pt.rotate(this.C, this.G);
-            GFX.Sprite(pt.x-x, pt.y-y, this.hat, 1, this.G);
+            GFX.Sprite(pt.x-x, pt.y-y, h.s, 1, this.G);
         }
 
         if(this.extra){
-            var am = SPRITES.Get('bossfc', this.face);
+            var am = SPRITES.Get('f', this.face);
             var pt = this.C.CloneAdd({x:0,y:-20});
             pt.rotate(this.C, this.G);
             GFX.Sprite(pt.x-x, pt.y-y, am, this.size, this.G); 
 
             if(this.throw==1){
-                var rk = SPRITES.Get('rock32', 0);
+                var rk = SPRITES.Get('tf', 0);
                 var pt = this.C.CloneAdd({x:4,y:-40});
                 GFX.Sprite(pt.x-x, pt.y-y, rk, this.size, this.G);
             }
 
-            am = SPRITES.Get('bossarm', 0);
+            am = SPRITES.Get('r', 0);
             pt = this.C.CloneAdd(this.throw?{x:8,y:0}:{x:0,y:10});
             GFX.Sprite(pt.x-x, pt.y-y, am, this.size, this.throw ? this.G : this.G-1.3); 
         }

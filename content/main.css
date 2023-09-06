@@ -1,19 +1,14 @@
 body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
   background-color: #555;
 }
 
-#canvasBody canvas {
+#cb canvas {
   cursor: none;
   width: 100%;
   display: block;
-  margin: auto;
-  background: #000;
 }
 
-div#canvasBody {
+div#cb {
   width: 100vw;
   height: 76vw;
   max-height: 100vh;
@@ -24,5 +19,4 @@ div#canvasBody {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: grey;
 }
