@@ -10,14 +10,15 @@ class Blocky{//TBA
         this.gameMode = 0;  // TITLE
         this.level = 0;
         this.offset;
-        this.gameObjects = new ObjectPool();
-        this.particles = new ObjectPool(); 
+        this.gameObjects = new Pool();
+        this.particles = new Pool(); 
         this.iT = {p:new Vector2(240, 400), src:'ip', sz:0.1, r:0, yv:0, svv:0, yvv:0, lv:0};
         this.rnd = 0;
         // Gravity
         this.mGravity = new Vector2(0, 100);
         this.help = {in:1,up:1,mv:1,f:1,pu:2, go:0, ln:3, c:null};
-        this.super = 0;
+        this.mode = 1;
+        this.hi = 0;
         this.Start(0);
     }
 
@@ -296,7 +297,7 @@ class Blocky{//TBA
         var cols = [];
         var tp = pt ? pt.t : 0;
         pt.col.forEach(c => {
-            cols.push(DEFS.spritePal[c]);
+            cols.push(DEFS.pal[c]);
         });
 
         var ln = cols.length;
@@ -385,6 +386,12 @@ class Blocky{//TBA
             this.plr.C.y));
 
         if(this.gameMode == 0){ // TITLE
+            if(Input.Up()){
+                this.mode=0;
+            }
+            if(Input.Down()){
+                this.mode=1;
+            }
             if(Input.Fire1()){
                 this.iT = {p:new Vector2(240, 400), src:'ip', sz:1, r:0,lv:1};
                 this.Start(1);
@@ -393,17 +400,17 @@ class Blocky{//TBA
                 if(this.iT.sz < 16){
                     this.iT.svv += 0.38;
                     this.iT.yvv += 1.8;
-                    this.iT.sz += EF.easeInQuad(this.iT.svv*dt);
+                    this.iT.sz += EF.InQuad(this.iT.svv*dt);
                     this.iT.r += 14.5*dt;
 
-                    this.iT.p.y-= EF.easeInOutQuad(this.iT.yvv*dt);
+                    this.iT.p.y-= EF.InOutQuad(this.iT.yvv*dt);
                     if(this.iT.sz>=16){
-                        AUDIO.Play(C.SND.crash);
+                        AUDIO.Play(1);
                     }                
                 }
                 else if (this.iT.p.y<990){
                     this.iT.yv += 0.1;
-                    this.iT.p.y += EF.easeInQuad(this.iT.yv*dt);
+                    this.iT.p.y += EF.InQuad(this.iT.yv*dt);
                 }                
             }
 
@@ -424,10 +431,6 @@ class Blocky{//TBA
             if(GAME.help.c != null && this.plr.shots){
                 GAME.help.c.enabled = 0;
             }
-            //behold the spell of invincibility
-            //if(Input.IsSingle("i") && Input.IsSingle("q")){
-            //    this.super = !this.super;
-            //}  
 
             if(this.boss){
                 this.Zoom(this.plr.C.Distance(this.boss.C) > 400);
@@ -501,12 +504,22 @@ class Blocky{//TBA
             var ps = ((this.plr.C.x - this.plrStart)/10)|0;
             this.lvlScore = ps > this.lvlScore ? ps : this.lvlScore;          
 
+            var scr = this.score+this.lvlScore;
+
             if(this.gameMode == 1 && !this.plr.enabled){   // GAME
                 this.GameOver();
             }
             if(this.gameMode == 6 || this.gameMode == 7){    // GAMEOVER    // KING
                 if(!this.gameTimer.enabled){
-                    this.Quit();
+                    if(this.mode == 1){
+                        this.Start(this.level);
+                    }
+                    else{
+                        if(scr>this.hi){
+                            this.hi = scr;
+                        }
+                        this.Quit();                        
+                    }
                 }            
             }
         }
@@ -514,6 +527,7 @@ class Blocky{//TBA
 
     Render()
     {
+        var scr = this.score+this.lvlScore;
         MAP.PreRender();
 
         //render objects
@@ -530,12 +544,16 @@ class Blocky{//TBA
         MAP.PostRender();
 
         if(this.gameMode != 0){// TITLE
-            SFX.Text("DISTANCE: " + Util.NumericText(this.score+this.lvlScore,5),16, 4, 3, 0, "#fff");
-            SFX.Text("TONY" ,234, 4, 3, 0, this.super ? "#f00" : "#fff"); 
+            if(!this.mode){
+                SFX.Text("DISTANCE: " + Util.NText(scr,5),16, 4, 3, 0, scr > this.hi ? "#F83" : "#fff");           
+                SFX.Text("BEST: " + Util.NText(this.hi,5),16, 24, 3, 0, "#fff");  
+            }
+
+            SFX.Text("TONY" ,234, 4, 3, 0, this.mode ? "#F83" : "#fff"); 
             SFX.Box(298,4,
                 Util.Remap(0,500, 0,100, this.plr.damage)
                 , 15, '#0F0');
-            SFX.Text("ROCKS: " + Util.NumericText(this.plr.shots,3),
+            SFX.Text("ROCKS: " + Util.NText(this.plr.shots,3),
                             234, 24, 3, 0, "#fff"); 
         }
 
@@ -586,10 +604,19 @@ class Blocky{//TBA
         }
         else if(this.gameMode == 8){        // INTRO
             SFX.Box(0,0, 800,608);
-            SFX.Text("IN 1276AD THE GOOD KNIGHT SIR TONY",100,124,4,0,w); 
-            SFX.Text("OF TONYSHIRE SOUGHT OUT TO CONQUER",100,148,4,0,w);
-            SFX.Text("AND BECOME THE RIGHTFULL KING.",100,172,4,0,w);
-            SFX.Text("THIS IS HOW IT WENT, PROBABLY",100,196,4,0,w);
+            if(!this.mode){
+                SFX.Text("SIR TONY OF TONYSHIRE",100,124,4,0,w); 
+                SFX.Text("GO FORTH AND CONQUER AS",100,148,4,0,w);
+                SFX.Text("MUCH KINGOMS AS POSSIBLE",100,172,4,0,w);
+                SFX.Text("FOR SOME REASON",100,196,4,0,w);
+            }
+            else{
+                SFX.Text("IN 1276AD THE GOOD KNIGHT SIR TONY",100,124,4,0,w); 
+                SFX.Text("OF TONYSHIRE SOUGHT OUT TO CONQUER",100,148,4,0,w);
+                SFX.Text("AND BECOME THE RIGHTFULL KING.",100,172,4,0,w);
+                SFX.Text("THIS IS HOW IT WENT, PROBABLY",100,196,4,0,w);
+            }
+
             if(!this.gameTimer.enabled){
                 SFX.Text(D[0]+" CONTINUE",360,280,4,0,d);  
             }
@@ -598,36 +625,51 @@ class Blocky{//TBA
             SFX.Sprite(this.iT.p.x, this.iT.p.y, 
                 SPRITES.Get(this.iT.src, 0), this.iT.sz, this.iT.r);  
 
-            SFX.Text("GO FORTH",300,100,8,1,g); 
-            SFX.Text("AND",400,160,6,1,g); 
-            SFX.Text("CONQUER",310,212,8,1,g); 
+            SFX.Text(D[2],300,60,8,1,g); 
+            SFX.Text("AND",400,120,6,1,g); 
+            SFX.Text(D[3],310,172,8,1,g); 
+
+            SFX.Text(D[2],400,240,4,0,d);  
+            SFX.Text(D[3],400,264,4,0,d);  
+            SFX.Text("<",560,this.mode ? 264 : 240,4,0,d);
+
             if(this.iT.lv || this.iT.sz > 16){ 
-                SFX.Text(D[0]+" TO START",360,280,4,0,d);  
+                SFX.Text(D[0]+" TO START",360,300,4,0,d);  
             }
         }else if(this.gameMode == 4){            // LEVELEND
             SFX.Text(""+ b[2] + " " + b[1] + " IS " + (this.rnd==0?"SLAIN":"DEFEATED") ,60,100,5,1,g); 
             SFX.Text("YOU ARE NOW " + b[2],180,140,5,1,g); 
-            SFX.Text("YOU HAVE TRAVELLED " + (this.score+this.lvlScore) +" YDS" ,140,190,4,1,g); 
+            SFX.Text(D[4] + scr +" YDS" ,140,190,4,1,g); 
             if(this.level<8){
                 SFX.Text("ONWARD " + b[2]+" TONY" ,190,230,5,1,g); 
             }
         
         }else if(this.gameMode == 6){   // GAMEOVER
-            SFX.Text("THY GAME IS OVER",140,100,6,1,g);   
+            if(!this.mode){
+                var f = scr>750 ? 1 : 0;
+                SFX.Text("THY GAME IS OVER",140,100,6,1,g); 
+                SFX.Text(D[4] + scr +" YDS" ,130,200,4,1,d); 
+                SFX.Text(""+FF[f] ,130,240,4,1,d);
+            }
+            else{
+                SFX.Text("YOU FAILED TO "+D[3],90,100,6,1,g); 
+                SFX.Text(""+BOSSES[this.level][0],140,150,6,1,g); 
 
-            SFX.Text("YOU HAVE TRAVELLED " + (this.score+this.lvlScore) +" YDS" ,130,200,4,1,d); 
-            if(this.level>1)
-            {
-                SFX.Text("YOU HAVE CONQUERED " + (this.level-1) + " KINGDOMS",100,240,4,1,d); 
-                SFX.Text(""+BOSSES[this.level-1][2]+" OF THE REALM",170,145,5,1,g); 
+                SFX.Text("ONWARD WITH YOUR QUEST" ,130,260,5,1,g);                   
+                SFX.Text(""+BOSSES[this.level-1][2]+" OF THE REALM",170,300,5,1,g); 
+
+                if(this.level>1)
+                {
+                    SFX.Text("YOU HAVE "+D[3]+"ED " + (this.level-1) + " "+D[1]+"S",100,200,4,1,d); 
+                }
+
+                SFX.Text("[ESC] TO QUIT" ,190,350,4,0,g);
             }
         }
         else if (this.gameMode == 7){   // KING
             SFX.Text("BEHOLD KING TONY",140,100,6,1,g);  
-            SFX.Sprite(400, 300, 
-                SPRITES.Get(this.iT.src, 0), 3, 0);
-            SFX.Sprite(400, 240, 
-                    SPRITES.Get('k', 0), 3, 0);      
+            SFX.Sprite(400, 300, SPRITES.Get(this.iT.src, 0), 3, 0);
+            SFX.Sprite(400, 240, SPRITES.Get('k', 0), 3, 0);      
         } 
     }
 }

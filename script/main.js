@@ -49,7 +49,7 @@ function Start(canvasBody)
 		GFX = new Render(MAP.osCanvas.ctx);	
 		SFX = new Render(MAP.screenCtx, wd, ht);
 
-		SPRITES = new SpritePreProcessor(DEFS.spriteDef);	
+		SPRITES = new SpritePreProcessor(DEFS.def);	
 
 		preInit();
 	}
@@ -57,12 +57,12 @@ function Start(canvasBody)
 
 function preInit(){
 
-	Gen(0,'s8x2', 2);
-	Gen(0,'s8x4', 4);
-	Gen(1,'s16x1',1);
-	Gen(1,'s16x2',2);
-	Gen(1,'s16x4', 4);
-	Gen(2,'s24x4',4);
+	Gen(0,1, 2);
+	Gen(0,2, 4);
+	Gen(1,3,1);
+	Gen(1,4,2);
+	Gen(1,5, 4);
+	Gen(2,6,4);
 	Gen1(300,80);
 
 	init();
@@ -90,11 +90,11 @@ function Gen1(w, h){
 	gx.Sprite(16, 40, l, 1, 0);
 	gx.Sprite(16, 50, m, 1, 0);
 
-	SPRITES.assets['spX'] = g.canvas;
+	SPRITES.assets[7] = g.canvas;
 }
 
 function Gen(index, tagname, sz){
-	var d = DEFS.spriteData[index];
+	var d = DEFS.dat[index];
 	var w = d[0];
 	var h = d[1];
 	var g = Util.Context(w*sz, h*sz);
@@ -106,7 +106,7 @@ function Gen(index, tagname, sz){
 		if(spr[i]>0){
 			var c = (i % w)|0;
 			var r = (i / w)|0;
-			gx.Box(c*sz, r*sz, sz, sz, DEFS.spritePal[spr[i]]);
+			gx.Box(c*sz, r*sz, sz, sz, DEFS.pal[spr[i]]);
 		}
 	}
 

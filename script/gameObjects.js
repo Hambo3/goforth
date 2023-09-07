@@ -165,14 +165,14 @@ class GameObject extends RigidShape{
                     if(cx.I>3){
                         this.damage -= cx.I;                        
                         if(this.damage <= 0){
-                            AUDIO.Play(C.SND.splinter);
+                            AUDIO.Play(2);
                             this.enabled = 0;
                             if(this.particle){
                                 GAME.ParticleGen(this.C.Clone(), this.particle);
                             }
                         }
                         else{
-                            AUDIO.Play(C.SND.crash);
+                            AUDIO.Play(1);
                         }
                     }
                 } 
@@ -360,7 +360,7 @@ class Player extends GameObject{
                     perp.enabled = 0;
                     this.hat = perp.type == 13 ? 2 :1;
                     this.damage = Util.Clamp(this.damage+100, 300,500);
-                    AUDIO.Play(C.SND.tada);
+                    AUDIO.Play(3);
                 }
                 
             }
@@ -374,7 +374,7 @@ class Player extends GameObject{
                 } 
 
                 this.altF = this.anim.Next(this.altF, () =>{
-                    AUDIO.Play(C.SND.step);
+                    AUDIO.Play(0);
                 });                
             }
 
@@ -473,7 +473,7 @@ class BadGuy extends GameObject{
                 {
                     var h = this.hats[this.hat];
                     if(this.hat ==1){
-                        AUDIO.Play(C.SND.boss); 
+                        AUDIO.Play(4); 
                         this.hatP =new PickUp(this.C.Clone().AddXY(0, -48), 29, 13);
                         this.hatP.V = new Vector2(this.V.x, -Util.Rnd(24));
                         GAME.gameObjects.Add(this.hatP);                                               

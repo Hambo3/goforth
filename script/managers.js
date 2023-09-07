@@ -3,11 +3,11 @@ class SpritePreProcessor{
     constructor(definition, onReady){
         this.onReady = onReady;
         this.assets = [];
-        this.spriteData = definition;
+        this.dat = definition;
     }
 
     Get(tag,frame=0, asset){
-        var s = this.spriteData[tag];
+        var s = this.dat[tag];
         return {
             img: asset || this.assets[s.tag],
             pos:s.src[frame],

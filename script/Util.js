@@ -1,6 +1,6 @@
 var EF = {
-    easeInQuad: function (t) { return t * t },
-    easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t }
+    InQuad: function (t) { return t * t },
+    InOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t }
 }
 
 var Util = {
@@ -100,13 +100,13 @@ var Util = {
         }
         return map;
     },
-    NumericText: function(val,len){
+    NText: function(val,len){
         return ("000000"+val).slice(-len);
     }
 }
 
 // a v simple object pooler
-var ObjectPool = function () {
+var Pool = function () {
     var list = [];
 
     return {
