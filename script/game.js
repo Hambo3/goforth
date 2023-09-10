@@ -46,7 +46,7 @@ class Blocky{//TBA
         return x;
     }
 
-    Start(lvl){
+    Start(lvl,h){
         var lvls = [
             {cs:50, cr:2, w:80, f:0, t:[0,0,0]},//title
             {cs:50, cr:2, w:120, f:0, t:[0,0,1]},
@@ -99,7 +99,8 @@ class Blocky{//TBA
         this.chaser = new Chaser(0, MAP.mapSize.x - 200, lvlInfo.cs, lvlInfo.cr);
         this.gameObjects.Add(this.chaser);
 
-        this.gameMode = this.help.in ? 8 : 1;  // INTRO // GAME
+        //oh dear, this is awful
+        this.gameMode = !h && (this.mode || this.help.in) ? 8 : 1;  // INTRO // GAME
 
         if(!lvl){
             this.gameMode = 0;  // TITLE
@@ -347,7 +348,7 @@ class Blocky{//TBA
         }
         else{
             this.level ++;
-            this.Start(this.level);
+            this.Start(this.level, this.mode);
         }
     }
 
@@ -417,7 +418,7 @@ class Blocky{//TBA
         }
         else if(this.gameMode == 8){    // INTRO
             if(Input.Fire1()){
-                this.help.in = 0;
+                this.help.in = this.mode ? 1 : 0;
                 this.gameMode = 1;  // GAME
             }  
         }
@@ -512,7 +513,9 @@ class Blocky{//TBA
             if(this.gameMode == 6 || this.gameMode == 7){    // GAMEOVER    // KING
                 if(!this.gameTimer.enabled){
                     if(this.mode == 1){
-                        this.Start(this.level);
+                        this.plr.shots = 0;
+                        this.plr.damage = 500;
+                        this.Start(this.level,1);
                     }
                     else{
                         if(scr>this.hi){
@@ -639,7 +642,7 @@ class Blocky{//TBA
         }else if(this.gameMode == 4){            // LEVELEND
             SFX.Text(""+ b[2] + " " + b[1] + " IS " + (this.rnd==0?"SLAIN":"DEFEATED") ,60,100,5,1,g); 
             SFX.Text("YOU ARE NOW " + b[2],180,140,5,1,g); 
-            SFX.Text(D[4] + scr +" YDS" ,140,190,4,1,g); 
+            if(!this.mode){SFX.Text(D[4] + scr +" YDS" ,140,190,4,1,g); }
             if(this.level<8){
                 SFX.Text("ONWARD " + b[2]+" TONY" ,190,230,5,1,g); 
             }
@@ -655,13 +658,8 @@ class Blocky{//TBA
                 SFX.Text("YOU FAILED TO "+D[3],90,100,6,1,g); 
                 SFX.Text(""+BOSSES[this.level][0],140,150,6,1,g); 
 
-                SFX.Text("ONWARD WITH YOUR QUEST" ,130,260,5,1,g);                   
-                SFX.Text(""+BOSSES[this.level-1][2]+" OF THE REALM",170,300,5,1,g); 
-
-                if(this.level>1)
-                {
-                    SFX.Text("YOU HAVE "+D[3]+"ED " + (this.level-1) + " "+D[1]+"S",100,200,4,1,d); 
-                }
+                SFX.Text("ONWARD WITH YOUR QUEST" ,130,220,5,1,g);                   
+                SFX.Text(""+BOSSES[this.level-1][2]+" OF THE REALM",170,260,5,1,g); 
 
                 SFX.Text("[ESC] TO QUIT" ,190,350,4,0,g);
             }
