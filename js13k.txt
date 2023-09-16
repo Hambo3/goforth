@@ -1,0 +1,3 @@
+Small screenshot (160px × 160px): 
+
+Big screenshot (400px × 250px):
