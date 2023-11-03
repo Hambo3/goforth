@@ -1,8 +1,7 @@
 # Go Forth and Conquer
 
 A game for js13k 2023  
-Take charge of Puppy who must find help for his owner who has become trapped. Find help and guide them back to Tony, your owner.
-Look out for big mean dogs who prowl the woods.
+
 
 ## Gameplay
 WAD Arrows Gamepad to move
