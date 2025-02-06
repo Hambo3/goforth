@@ -1,3 +1,4 @@
+
 // NONE:0,
 // BALL:1,
 // BLOCK:3,
@@ -11,6 +12,7 @@
 // PICKUPSHOT:12,
 // PICKUPHAT:13
 
+
 // TITLE:0,
 // GAME:1,
 // INPLAY:2,
@@ -21,7 +23,39 @@
 // KING:7,
 // INTRO:8
 
-var C = { 
+//C.ASSETS.
+var C = {
+    MODES:{
+        FIXED:0,
+        CORRECT:1
+    },
+    ASSETS:{
+        NONE:0,
+        BALL:1,
+        BLOCK:3,
+        WALL:5,
+        GROUND:6,
+        PLAYER:7,
+        EXTRA:8,
+        PLATFORM:9,
+        BADGUY:10,
+        BOSS:11,
+        PICKUPSHOT:12,
+        PICKUPHAT:13,
+        PICKUPCROWN:14
+    },   
+    GAMEMODE:
+    {
+        TITLE:0,
+        GAME:1,
+        INPLAY:2,
+        LEVELENDING:3,
+        LEVELEND:4,
+        GAMEWON:5,
+        GAMEOVER:6,
+        KING:7,
+        INTRO:8
+    },
     SND:{
         step:0,//step
         crash:1,//crash
@@ -31,16 +65,16 @@ var C = {
     }
 }
 
-var D=["[SPACE]","KINGDOM","GO FORTH","CONQUER", "YOU HAVE TRAVELLED "];
-var FF = ["SOME "+D[3]+"ER YOU ARE", "YOU CAN DO IT"];
+//var D=["[SPACE]","KINGDOM","GO FORTH","CONQUER", "YOU HAVE TRAVELLED "];
+var FF = ["SOME CONQUERER YOU ARE", "YOU CAN DO IT"];
 
 var BOSSES = [
     [0,0,"KNIGHT"],
-    [D[1]+" OF ASMEA","RAMNUS","LORD"],
+    ["KINGDOM OF ASMEA","RAMNUS","LORD"],
     ["EFRIUM","ATHEENA","BARON"],
     ["STRONGHOLD OF BULWARK", "ANDROU","VISCOUNT"],  
-    ["KAIDIAN "+D[1],"GIROLDUS","COUNT"],      
-    [D[1]+" OF ECANUS","ERNALD","MARQUIS"],
+    ["KAIDIAN KINGDOM","GIROLDUS","COUNT"],      
+    ["KINGDOM OF ECANUS","ERNALD","MARQUIS"],
     ["VINLUN","GUILIELM","DUKE"],
     ["CHURCHES MOUND","GUERNIER","PRINCE"],
     ["DEEPWALD","IMAYN","KING"]
@@ -140,6 +174,15 @@ var FEATURE =[
             t:5,
             p:[{x:0,y:-32},{x:32,y:-32},{x:32,y:-64},{x:32,y:-96}]
         }]
+    },
+    {t:[1,1,1],n:[1,2],             //see saw ground
+        o:[{
+            t:4, p:[{x:32,y:-32}]
+            },
+            {
+            t:16, p:[{x:32,y:-48}]
+            }
+        ]
     },      
     {t:[1,1,1],n:[1,2], l2:{x:4,y:-5},      //3x pmid l2
         o:[{
@@ -245,7 +288,7 @@ var GAMEOBJ = [
     {
         id:16, src:'ti',
         s:0, t:3,
-        w:160, h:16, d:8, f:1, r:0.2, dm:20, p:{t:[0,1,2],col:[6,8,9]}
+        w:160, h:16, d:6, f:1, r:0.2, dm:40, p:{t:[0,1,2],col:[6,8,9]}
     },
     {
         id:17, src:'t6',

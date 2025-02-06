@@ -29,6 +29,8 @@ var SPRITES = [];
 var PHYSICS = new World();
 var AUDIO;
 
+var IsTouchDevice = window.ontouchstart !== undefined;
+
 function Start(canvasBody)
 {	
 	// Create the canvas
@@ -48,6 +50,8 @@ function Start(canvasBody)
 		//offscreen renderer
 		GFX = new Render(MAP.osCanvas.ctx);	
 		SFX = new Render(MAP.screenCtx, wd, ht);
+
+		Input.Init(mCtx.canvas, IsTouchDevice, SFX);
 
 		SPRITES = new SpritePreProcessor(DEFS.def);	
 
@@ -124,7 +128,7 @@ function init()
 
 function FixedLoop(){
 	if(Input.IsSingle('Escape') ) {
-		GAME.Quit();
+		GAME.Pause();
 	}
 
 //DEBUG

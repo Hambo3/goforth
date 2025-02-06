@@ -2,6 +2,8 @@ class Blocky{//TBA
 
     constructor()
     {        
+        this.pause = 0;
+        this.music = 1;
         this.lvlSpeed = 60;
         this.score = 0;
         this.lvlScore = 0;
@@ -32,8 +34,17 @@ class Blocky{//TBA
     CreateMap(w, h){
         var map = [];   
         this.CreateMapRows(map,w,0,12,0);
+        this.Clouds(map);
         this.CreateMapRows(map,w,12,h,1);
         return map;
+    }
+
+    Clouds(map){
+        var w = map[0].length;
+        var h = map.length;
+        for (let i=0; i<10; i++){
+            map[Util.RndI(1,h)][Util.RndI(1,w)] = 2;
+        }
     }
 
     TitleLevel(map, lvl, l, w, h){
@@ -50,13 +61,13 @@ class Blocky{//TBA
         var lvls = [
             {cs:50, cr:2, w:80, f:0, t:[0,0,0]},//title
             {cs:50, cr:2, w:120, f:0, t:[0,0,1]},
-            {cs:60, cr:1.8, w:140, f:5, t:[0,1,2]},
-            {cs:70, cr:1.6, w:180, f:7, t:[1,0,2]},
-            {cs:80, cr:1.6, w:100, f:9, t:[1,1,2]},
-            {cs:80, cr:1.5, w:160, f:9, t:[0,0,2]},
-            {cs:80, cr:1.4, w:180, f:9, t:[1,0,2]},
-            {cs:80, cr:1.3, w:200, f:9, t:[1,2,2]},
-            {cs:80, cr:1.4, w:200, f:9, t:[2,2,2]}
+            {cs:60, cr:1.8, w:140, f:6, t:[0,1,2]},
+            {cs:70, cr:1.6, w:180, f:8, t:[1,0,2]},
+            {cs:80, cr:1.6, w:100, f:10, t:[1,1,2]},
+            {cs:80, cr:1.5, w:160, f:10, t:[0,0,2]},
+            {cs:80, cr:1.4, w:180, f:10, t:[1,0,2]},
+            {cs:80, cr:1.3, w:200, f:10, t:[1,2,2]},
+            {cs:80, cr:1.4, w:200, f:10, t:[2,2,2]}
         ];
 
         var lvlInfo = lvl > lvls.length ? lvls[lvls.length-1] : lvls[lvl];
@@ -116,12 +127,15 @@ class Blocky{//TBA
 
         this.rnd = Util.RndI(0,2);
 
-        if(this.level){
-            MUSIC.Play();
+        if(this.music){
+            if(this.level){
+                MUSIC.Play();
+            }
+            else{
+                MUSIC.Stop();
+            }            
         }
-        else{
-            MUSIC.Stop();
-        }
+
     } 
 
     CreateLevel(map, lvl, l, info, h){
@@ -366,6 +380,19 @@ class Blocky{//TBA
         this.Start(0);
     }
 
+    Pause(){
+        if(this.gameMode == C.GAMEMODE.GAME){
+            if(this.pause){
+                this.pause = 0;
+                this.Quit();
+            }
+            else{
+                this.pause = !this.pause;
+            }            
+        }
+
+    }
+
     Zoom(t){
         if(t){
             MAP.Zoom(0.002);
@@ -377,153 +404,160 @@ class Blocky{//TBA
 
     Update(dt)
     {   
-        this.gameTimer.Update(dt);
-        if(this.help.c){
-            this.help.c.Update(dt);
+        if(this.pause){
+            if(Input.Fire1() ) {
+                this.pause = 0;
+            }
         }
-
-        this.offset = MAP.ScrollTo(new Vector2(
-            this.plr.C.x > this.chaser.pos.x ? this.plr.C.x : this.chaser.pos.x, 
-            this.plr.C.y));
-
-        if(this.gameMode == 0){ // TITLE
-            if(Input.Up()){
-                this.mode=0;
+        else{
+            this.gameTimer.Update(dt);
+            if(this.help.c){
+                this.help.c.Update(dt);
             }
-            if(Input.Down()){
-                this.mode=1;
-            }
-            if(Input.Fire1()){
-                this.iT = {p:new Vector2(240, 400), src:'ip', sz:1, r:0,lv:1};
-                this.Start(1);
-            }
-            if(this.iT.lv == 0){
-                if(this.iT.sz < 16){
-                    this.iT.svv += 0.38;
-                    this.iT.yvv += 1.8;
-                    this.iT.sz += EF.InQuad(this.iT.svv*dt);
-                    this.iT.r += 14.5*dt;
 
-                    this.iT.p.y-= EF.InOutQuad(this.iT.yvv*dt);
-                    if(this.iT.sz>=16){
-                        AUDIO.Play(1);
+            this.offset = MAP.ScrollTo(new Vector2(
+                this.plr.C.x > this.chaser.pos.x ? this.plr.C.x : this.chaser.pos.x, 
+                this.plr.C.y));
+
+            if(this.gameMode == 0){ // TITLE
+                if(Input.Up()){
+                    this.mode=0;
+                }
+                if(Input.Down()){
+                    this.mode=1;
+                }
+                if(Input.Fire1()){
+                    this.iT = {p:new Vector2(240, 400), src:'ip', sz:1, r:0,lv:1};
+                    this.Start(1);
+                }
+                if(this.iT.lv == 0){
+                    if(this.iT.sz < 16){
+                        this.iT.svv += 0.38;
+                        this.iT.yvv += 1.8;
+                        this.iT.sz += EF.InQuad(this.iT.svv*dt);
+                        this.iT.r += 14.5*dt;
+
+                        this.iT.p.y-= EF.InOutQuad(this.iT.yvv*dt);
+                        if(this.iT.sz>=16){
+                            AUDIO.Play(1);
+                        }                
+                    }
+                    else if (this.iT.p.y<990){
+                        this.iT.yv += 0.1;
+                        this.iT.p.y += EF.InQuad(this.iT.yv*dt);
                     }                
                 }
-                else if (this.iT.p.y<990){
-                    this.iT.yv += 0.1;
-                    this.iT.p.y += EF.InQuad(this.iT.yv*dt);
-                }                
+
             }
-
-        }
-        else if(this.gameMode == 8){    // INTRO
-            if(Input.Fire1()){
-                this.help.in = this.mode ? 1 : 0;
-                this.gameMode = 1;  // GAME
-            }  
-        }
-        else if(this.gameMode == 1              // GAME 
-            || this.gameMode == 6               // GAMEOVER
-            || this.gameMode == 4               // LEVELEND
-            || this.gameMode == 7){             // KING
-
-            this.help.go = !this.boss && (this.chaser.pos.x-200)>this.plr.C.x;
-
-            if(GAME.help.c != null && this.plr.shots){
-                GAME.help.c.enabled = 0;
+            else if(this.gameMode == 8){    // INTRO
+                if(Input.Fire1()){
+                    this.help.in = this.mode ? 1 : 0;
+                    this.gameMode = 1;  // GAME
+                }  
             }
+            else if(this.gameMode == 1              // GAME 
+                || this.gameMode == 6               // GAMEOVER
+                || this.gameMode == 4               // LEVELEND
+                || this.gameMode == 7){             // KING
 
-            if(this.boss){
-                this.Zoom(this.plr.C.Distance(this.boss.C) > 400);
-            }
-            else{
-                this.Zoom(this.plr.C.x < (this.chaser.pos.x-340));              
-            }
+                this.help.go = !this.boss && (this.chaser.pos.x-200)>this.plr.C.x;
 
-            if(this.plr.C.x > MAP.mapSize.x - 800 && this.boss == null){
-                this.boss = new BadGuy(new Vector2(MAP.mapSize.x - 200, 100), 21, 11);
-                this.gameObjects.Add(this.boss);
-                this.boss.Set(100);
-                this.chaser.rate *=0.8;                
-            }
-
-            var objects = this.gameObjects.Get();
-
-            // Compute collisions
-            var p = this.gameObjects.Get([0],1);
-          
-            var clx = PHYSICS.Update(p, dt);
-
-            for (var i = 0; i < objects.length; i++) {
-                var ci = clx.filter(c=>c.P1 == objects[i] || c.P2 == objects[i]);
-                objects[i].Update(dt, ci);
-            }
-
-            if(this.gameMode == 4 || this.gameMode == 7){        // LEVELEND  // KING
-                //fireworks
-                if(this.plr.enabled){
-                    if(Util.OneIn(32)){
-                        var p = new Vector2(Util.RndI(MAP.Pos.l+100, MAP.Pos.r-100),
-                                Util.RndI(this.plr.C.y-200, this.plr.C.y-400));
-                        
-                        this.ParticleGen(p, {t:[3],col:[5,25,28]}, 16);
-                    }
+                if(GAME.help.c != null && this.plr.shots){
+                    GAME.help.c.enabled = 0;
                 }
 
-                if(this.gameMode == 7){     // KING
-                    if(!this.gameTimer.enabled){
-                        this.Quit();
-                    } 
+                if(this.boss){
+                    this.Zoom(this.plr.C.Distance(this.boss.C) > 400);
                 }
                 else{
-                    if(this.gameTimer.enabled){
-                        if(this.gameTimer.Value < 5 && Input.Fire1()){
-                            this.NextLevel();
+                    this.Zoom(this.plr.C.x < (this.chaser.pos.x-340));              
+                }
+
+                if(this.plr.C.x > MAP.mapSize.x - 800 && this.boss == null){
+                    this.boss = new BadGuy(new Vector2(MAP.mapSize.x - 200, 100), 21, 11);
+                    this.gameObjects.Add(this.boss);
+                    this.boss.Set(100);
+                    this.chaser.rate *=0.8;                
+                }
+
+                var objects = this.gameObjects.Get();
+
+                // Compute collisions
+                var p = this.gameObjects.Get([0],1);
+            
+                var clx = PHYSICS.Update(p, dt);
+
+                for (var i = 0; i < objects.length; i++) {
+                    var ci = clx.filter(c=>c.P1 == objects[i] || c.P2 == objects[i]);
+                    objects[i].Update(dt, ci);
+                }
+
+                if(this.gameMode == 4 || this.gameMode == 7){        // LEVELEND  // KING
+                    //fireworks
+                    if(this.plr.enabled){
+                        if(Util.OneIn(32)){
+                            var p = new Vector2(Util.RndI(MAP.Pos.l+100, MAP.Pos.r-100),
+                                    Util.RndI(this.plr.C.y-200, this.plr.C.y-400));
+                            
+                            this.ParticleGen(p, {t:[3],col:[5,25,28]}, 16);
                         }
-                    }  
-                    else
-                    {
-                        this.NextLevel();
-                    }                     
-                }       
-            }
-            else{                                           //you win if
-                if(this.boss && (  this.plr.hat == 2        //have the crown    
-                                || !this.boss.enabled && !this.boss.hatP //theres a boss and hes fell off the screen
-                                || this.boss.hatP && !this.boss.hatP.enabled) ) //the crown is available and its gone
-                {
-                    this.LevelEnd();
-                }                
-            }
+                    }
 
-            var p = this.particles.Get();
-
-            for (var i = 0; i < p.length; i++) {
-                p[i].Update(dt);
-            }
-
-            var ps = ((this.plr.C.x - this.plrStart)/10)|0;
-            this.lvlScore = ps > this.lvlScore ? ps : this.lvlScore;          
-
-            var scr = this.score+this.lvlScore;
-
-            if(this.gameMode == 1 && !this.plr.enabled){   // GAME
-                this.GameOver();
-            }
-            if(this.gameMode == 6 || this.gameMode == 7){    // GAMEOVER    // KING
-                if(!this.gameTimer.enabled){
-                    if(this.mode == 1){
-                        this.plr.shots = 0;
-                        this.plr.damage = 500;
-                        this.Start(this.level,1);
+                    if(this.gameMode == 7){     // KING
+                        if(!this.gameTimer.enabled){
+                            this.Quit();
+                        } 
                     }
                     else{
-                        if(scr>this.hi){
-                            this.hi = scr;
+                        if(this.gameTimer.enabled){
+                            if(this.gameTimer.Value < 5 && Input.Fire1()){
+                                this.NextLevel();
+                            }
+                        }  
+                        else
+                        {
+                            this.NextLevel();
+                        }                     
+                    }       
+                }
+                else{                                           //you win if
+                    if(this.boss && (  this.plr.hat == 2        //have the crown    
+                                    || !this.boss.enabled && !this.boss.hatP //theres a boss and hes fell off the screen
+                                    || this.boss.hatP && !this.boss.hatP.enabled) ) //the crown is available and its gone
+                    {
+                        this.LevelEnd();
+                    }                
+                }
+
+                var p = this.particles.Get();
+
+                for (var i = 0; i < p.length; i++) {
+                    p[i].Update(dt);
+                }
+
+                var ps = ((this.plr.C.x - this.plrStart)/10)|0;
+                this.lvlScore = ps > this.lvlScore ? ps : this.lvlScore;          
+
+                var scr = this.score+this.lvlScore;
+
+                if(this.gameMode == 1 && !this.plr.enabled){   // GAME
+                    this.GameOver();
+                }
+                if(this.gameMode == 6 || this.gameMode == 7){    // GAMEOVER    // KING
+                    if(!this.gameTimer.enabled){
+                        if(this.mode == 1){
+                            this.plr.shots = 0;
+                            this.plr.damage = 500;
+                            this.Start(this.level,1);
                         }
-                        this.Quit();                        
-                    }
-                }            
+                        else{
+                            if(scr>this.hi){
+                                this.hi = scr;
+                            }
+                            this.Quit();                        
+                        }
+                    }            
+                }
             }
         }
     }
@@ -589,7 +623,7 @@ class Blocky{//TBA
                     SFX.Text("COLLECT ROCKS",360,260,4,0,d);
                 }                 
                 else if(this.plr.shots && this.help.f){
-                    SFX.Text("THROW     "+ D[0],360,260,4,0,d);
+                    SFX.Text("THROW     [SPACE]",360,260,4,0,d);
                 }                     
                 
             }
@@ -603,6 +637,9 @@ class Blocky{//TBA
                 if(this.boss.hatP){
                     SFX.Text("GET CROWN", 120, 140, 4, 0, d); 
                 }
+            }
+            else if(this.plr.C.x > MAP.mapSize.x - 1000){
+                SFX.Text(""+ b[2] + " " + b[1]+" APPROACHES",140,100,4,1,g);
             }
         }
         else if(this.gameMode == 8){        // INTRO
@@ -621,28 +658,28 @@ class Blocky{//TBA
             }
 
             if(!this.gameTimer.enabled){
-                SFX.Text(D[0]+" CONTINUE",360,280,4,0,d);  
+                SFX.Text("[SPACE] CONTINUE",360,280,4,0,d);  
             }
         }
         else if(this.gameMode == 0){    // TITLE
             SFX.Sprite(this.iT.p.x, this.iT.p.y, 
                 SPRITES.Get(this.iT.src, 0), this.iT.sz, this.iT.r);  
 
-            SFX.Text(D[2],300,60,8,1,g); 
+            SFX.Text("GO FORTH",300,60,8,1,g); 
             SFX.Text("AND",400,120,6,1,g); 
-            SFX.Text(D[3],310,172,8,1,g); 
+            SFX.Text("CONQUER",310,172,8,1,g); 
 
-            SFX.Text(D[2],400,240,4,0,d);  
-            SFX.Text(D[3],400,264,4,0,d);  
+            SFX.Text("GO FORTH",400,240,4,0,d);  
+            SFX.Text("CONQUER",400,264,4,0,d);  
             SFX.Text("<",560,this.mode ? 264 : 240,4,0,d);
 
             if(this.iT.lv || this.iT.sz > 16){ 
-                SFX.Text(D[0]+" TO START",360,300,4,0,d);  
+                SFX.Text("[SPACE] TO START",360,300,4,0,d);  
             }
         }else if(this.gameMode == 4){            // LEVELEND
             SFX.Text(""+ b[2] + " " + b[1] + " IS " + (this.rnd==0?"SLAIN":"DEFEATED") ,60,100,5,1,g); 
             SFX.Text("YOU ARE NOW " + b[2],180,140,5,1,g); 
-            if(!this.mode){SFX.Text(D[4] + scr +" YDS" ,140,190,4,1,g); }
+            if(!this.mode){SFX.Text("YOU HAVE TRAVELLED " + scr +" YDS" ,140,190,4,1,g); }
             if(this.level<8){
                 SFX.Text("ONWARD " + b[2]+" TONY" ,190,230,5,1,g); 
             }
@@ -651,11 +688,11 @@ class Blocky{//TBA
             if(!this.mode){
                 var f = scr>750 ? 1 : 0;
                 SFX.Text("THY GAME IS OVER",140,100,6,1,g); 
-                SFX.Text(D[4] + scr +" YDS" ,130,200,4,1,d); 
+                SFX.Text("YOU HAVE TRAVELLED " + scr +" YDS" ,130,200,4,1,d); 
                 SFX.Text(""+FF[f] ,130,240,4,1,d);
             }
             else{
-                SFX.Text("YOU FAILED TO "+D[3],90,100,6,1,g); 
+                SFX.Text("YOU FAILED TO CONQUER",90,100,6,1,g); 
                 SFX.Text(""+BOSSES[this.level][0],140,150,6,1,g); 
 
                 SFX.Text("ONWARD WITH YOUR QUEST" ,130,220,5,1,g);                   
@@ -669,5 +706,15 @@ class Blocky{//TBA
             SFX.Sprite(400, 300, SPRITES.Get(this.iT.src, 0), 3, 0);
             SFX.Sprite(400, 240, SPRITES.Get('k', 0), 3, 0);      
         } 
+
+        if(this.pause){
+            SFX.Box(0,0, MAP.screenSize.x, MAP.screenSize.y ,"rgba(100,100,100,0.6)");
+            var x = 300;
+            SFX.Box(x,200, 270, 100 ,"rgba(0,0,0,0.6)");
+            SFX.Text("[ESC] QUIT",x+20,280,2,0,"#fff");  
+            SFX.Text("[SPACE] CONTINUE",x+120,280,2,0,"#fff");  
+        }
+
+        Input.Render();
     }
 }

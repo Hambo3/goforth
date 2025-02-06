@@ -341,6 +341,7 @@ class Player extends GameObject{
             {y:-16, s:SPRITES.Get('k', 0)}
         ];
         this.altF = 0;
+        this.movementType = C.MODES.CORRECT;
     }
 
     Update(dt, ci)
@@ -350,20 +351,20 @@ class Player extends GameObject{
         if(ci.length > 0){
             for (var i = 0; i < ci.length; i++) {
                 var perp = ci[i].P1 != this ? ci[i].P1 : ci[i].P2;
-                if(perp.enabled && perp.type == 12){
+                if(perp.enabled && perp.type == C.ASSETS.PICKUPSHOT){
                     this.collidedWith.push(perp);
                     perp.enabled = 0;
                     this.shots+=1;
                 }
-                else if(perp.enabled && (perp.type == 13 || perp.type == 14)){
+                else if(perp.enabled && (perp.type == C.ASSETS.PICKUPHAT || perp.type == 14)){
                     this.collidedWith.push(perp);
                     perp.enabled = 0;
-                    this.hat = perp.type == 13 ? 2 :1;
+                    this.hat = perp.type == C.ASSETS.PICKUPHAT ? 2 :1;
                     this.damage = Util.Clamp(this.damage+100, 300,500);
                     AUDIO.Play(3);
                 }
-                
             }
+
             if(this.input.Left() || this.input.Right()){
                 GAME.help.mv = 0;
                 if(this.input.Left()){
@@ -375,15 +376,27 @@ class Player extends GameObject{
 
                 this.altF = this.anim.Next(this.altF, () =>{
                     AUDIO.Play(0);
-                });                
+                });
             }
 
             this.V.x *=0.9;
 
             if(this.input.Up()){
                 GAME.help.up = 0;
-                this.V.y -=28;
+                this.V.y -=28;                
             }
+        }
+        else{
+            if(this.movementType==C.MODES.CORRECT){
+                if(this.input.Left() || this.input.Right()){
+                    if(this.input.Left()){
+                        this.V.x -=0.1;
+                    }
+                    else{
+                        this.V.x +=0.1;
+                    }               
+                }                
+            }            
         }
 
         if(this.shots > 0 && this.input.Fire1()){
@@ -394,7 +407,7 @@ class Player extends GameObject{
         }
 
         if(ci.length != 0){
-             this.G = 0;    
+            this.G = 0;
         }
 
         if(this.hat && this.damage <= 250){            
@@ -669,9 +682,14 @@ class Chaser {
                     x = p.r+300;
                     v = 0;
                 }
-                else if (!GAME.plr.shots){
-                    id = Util.OneIn(3) ? 27 :id;
-                }
+
+                var o = Util.Remap(0,20, 2,5, GAME.plr.shots);
+                id = Util.OneIn(o) ? 27 :id;
+                // else if (!GAME.plr.shots){
+                //     id = Util.OneIn(3) ? 27 :id;
+                // }
+
+
 
                 if(GAME.help.ln){
                     GAME.help.ln--;

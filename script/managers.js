@@ -99,6 +99,14 @@ class Render{
         this.ctx.restore();
     }
 
+    Circle(x,y,r,c){
+        this.ctx.beginPath();
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeStyle = c;
+        this.ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+        this.ctx.stroke();
+    }
+    
     Box(x,y,w,h,c){
         this.ctx.fillStyle = c || '#000000';
         this.ctx.fillRect(x, y, w, h);
